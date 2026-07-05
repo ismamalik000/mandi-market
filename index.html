@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اسمارٹ منڈی — کمیشن شاپ سافٹ ویئر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F9F6;
+  --surface:#FFFFFF;
+  --surface-2:#EEF5F0;
+  --border:#DCE7E0;
+  --text:#17231C;
+  --text-dim:#5A6B60;
+  --primary:#1F7A4D;
+  --primary-dark:#145C38;
+  --primary-light:#DCF1E3;
+  --accent:#C98A2C;
+  --danger:#B3403A;
+  --danger-light:#FBE6E4;
+  --info:#2C6FB3;
+  --radius:12px;
+  --shadow:0 2px 10px rgba(20,60,40,0.07);
+  --font-body:'Noto Sans Arabic', Tahoma, sans-serif;
+  --font-display:'Noto Nastaliq Urdu', 'Noto Sans Arabic', serif;
+}
+[data-theme="dark"]{
+  --bg:#11170F;
+  --surface:#182018;
+  --surface-2:#1E271E;
+  --border:#2A362A;
+  --text:#E9F2E9;
+  --text-dim:#93A491;
+  --primary:#3FAE72;
+  --primary-dark:#2E8557;
+  --primary-light:#1D3326;
+  --accent:#E0A94A;
+  --danger:#E17872;
+  --danger-light:#3A2220;
+  --info:#5DA0E8;
+  --shadow:0 2px 12px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font-body);background:var(--bg);color:var(--text);transition:background .2s,color .2s;}
+h1,h2,h3,.brand{font-family:var(--font-display);}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:8px;}
+
+/* ---------------- LOGIN ---------------- */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--primary-dark),var(--primary) 60%, var(--accent));}
+.login-card{background:var(--surface);width:380px;max-width:92vw;border-radius:20px;padding:36px 32px;box-shadow:0 20px 50px rgba(0,0,0,.25);text-align:center;}
+.login-card .brand{font-size:30px;color:var(--primary-dark);margin:0 0 4px;}
+.login-card p.sub{color:var(--text-dim);margin:0 0 24px;font-size:14px;}
+.field{text-align:right;margin-bottom:14px;}
+.field label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:5px;}
+.field input, .field select, .field textarea{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:var(--surface-2);color:var(--text);font-size:15px;outline:none;}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--primary);}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:10px;padding:11px 20px;font-size:15px;font-weight:600;transition:transform .1s, opacity .15s;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-block{width:100%;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-sm{padding:6px 12px;font-size:13px;border-radius:8px;}
+.login-hint{margin-top:16px;font-size:12px;color:var(--text-dim);background:var(--surface-2);padding:10px;border-radius:10px;}
+.login-error{background:var(--danger-light);color:var(--danger);padding:10px;border-radius:10px;font-size:13px;margin-bottom:14px;display:none;}
+
+/* ---------------- APP SHELL ---------------- */
+#app{display:none;min-height:100vh;grid-template-columns:1fr 250px;grid-template-rows:64px 1fr;grid-template-areas:"topbar topbar" "content sidebar";}
+#app.active{display:grid;}
+#topbar{grid-area:topbar;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:10;}
+#topbar .brand{color:var(--primary-dark);font-size:22px;}
+#topbar .who{font-size:13px;color:var(--text-dim);}
+#topbar .actions{display:flex;align-items:center;gap:10px;}
+#sidebar{grid-area:sidebar;background:var(--surface);border-left:1px solid var(--border);padding:16px 10px;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;color:var(--text-dim);font-size:14px;font-weight:600;margin-bottom:4px;cursor:pointer;user-select:none;}
+.nav-item .ic{font-size:17px;width:22px;text-align:center;}
+.nav-item:hover{background:var(--surface-2);color:var(--text);}
+.nav-item.active{background:var(--primary);color:#fff;}
+#content{grid-area:content;padding:22px;overflow-y:auto;max-height:calc(100vh - 64px);}
+.section{display:none;}
+.section.active{display:block;animation:fadein .18s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.page-head h2{margin:0;font-size:21px;}
+.page-head .sub{color:var(--text-dim);font-size:13px;margin-top:2px;}
+
+/* cards / grid */
+.grid{display:grid;gap:16px;}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+@media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:repeat(2,1fr);}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);}
+.stat-card .label{font-size:13px;color:var(--text-dim);margin-bottom:8px;}
+.stat-card .value{font-size:26px;font-weight:700;}
+.stat-card .value.pos{color:var(--primary);}
+.stat-card .value.neg{color:var(--danger);}
+.stat-card .value.info{color:var(--info);}
+.stat-card .foot{font-size:12px;color:var(--text-dim);margin-top:6px;}
+
+/* tables */
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px;}
+th,td{padding:11px 13px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+th{background:var(--surface-2);color:var(--text-dim);font-weight:700;position:sticky;top:0;}
+tr:hover td{background:var(--surface-2);}
+.tag{padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;}
+.tag.green{background:var(--primary-light);color:var(--primary-dark);}
+.tag.red{background:var(--danger-light);color:var(--danger);}
+.tag.gray{background:var(--surface-2);color:var(--text-dim);}
+
+/* forms/toolbars */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.toolbar input, .toolbar select{padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:var(--surface);color:var(--text);font-size:13.5px;}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr;}}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(10,20,14,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;}
+.overlay.active{display:flex;}
+.modal{background:var(--surface);border-radius:16px;padding:24px;width:520px;max-width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);}
+.modal h3{margin:0 0 16px;}
+.modal-actions{display:flex;justify-content:flex-start;gap:10px;margin-top:18px;}
+
+/* toast */
+#toastHost{position:fixed;bottom:20px;left:20px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--text);color:var(--bg);padding:11px 18px;border-radius:10px;font-size:13.5px;box-shadow:var(--shadow);animation:fadein .2s;}
+.toast.err{background:var(--danger);color:#fff;}
+.toast.ok{background:var(--primary-dark);color:#fff;}
+
+.chart-bar-wrap{display:flex;align-items:flex-end;gap:8px;height:160px;padding-top:10px;}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-end;height:100%;}
+.chart-col .bar{width:70%;border-radius:6px 6px 0 0;background:var(--primary);min-height:2px;transition:height .3s;}
+.chart-col .bar.purchase{background:var(--accent);}
+.chart-col .lbl{font-size:10.5px;color:var(--text-dim);}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--text-dim);margin-top:8px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+.hidden{display:none !important;}
+.text-dim{color:var(--text-dim);}
+.right{text-align:left;}
+</style>
+</head>
+<body>
+
+<!-- ============== LOGIN ============== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h1 class="brand">اسمارٹ منڈی</h1>
+    <p class="sub">کمیشن شاپ مینجمنٹ سافٹ ویئر</p>
+    <div class="login-error" id="loginError"></div>
+    <div class="field">
+      <label>یوزر نیم</label>
+      <input id="loginUser" type="text" placeholder="مثلاً admin" autofocus>
+    </div>
+    <div class="field">
+      <label>پاس ورڈ</label>
+      <input id="loginPass" type="password" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="handleLogin()">لاگ ان کریں</button>
+    <div class="login-hint">
+      ڈیمو اکاؤنٹ: <b>admin</b> / <b>admin123</b> — لاگ ان کے بعد فوراً پاس ورڈ تبدیل کر لیں (ترتیبات میں)۔
+    </div>
+  </div>
+</div>
+
+<!-- ============== APP ============== -->
+<div id="app">
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="brand">اسمارٹ منڈی</span>
+      <span class="who" id="whoLabel"></span>
+    </div>
+    <div class="actions">
+      <button class="btn btn-outline btn-sm" onclick="toggleTheme()" id="themeBtn">🌙 ڈارک موڈ</button>
+      <button class="btn btn-outline btn-sm" onclick="doLogout()">لاگ آؤٹ</button>
+    </div>
+  </div>
+
+  <div id="sidebar"></div>
+
+  <div id="content">
+
+    <!-- DASHBOARD -->
+    <section class="section" id="sec-dashboard">
+      <div class="page-head">
+        <div><h2>ڈیش بورڈ</h2><div class="sub" id="todayDate"></div></div>
+        <button class="btn btn-outline btn-sm" onclick="renderDashboard()">🔄 ریفریش</button>
+      </div>
+      <div class="grid grid-4" id="dashCards"></div>
+      <div class="grid grid-2" style="margin-top:16px;">
+        <div class="card">
+          <h3 style="margin-top:0;">پچھلے 7 دن — فروخت / خریداری</h3>
+          <div class="chart-bar-wrap" id="chart7day"></div>
+          <div class="legend"><span><i class="dot" style="background:var(--primary)"></i>فروخت</span><span><i class="dot" style="background:var(--accent)"></i>خریداری</span></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">حالیہ سرگرمی</h3>
+          <div id="recentActivity" style="font-size:13.5px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PURCHASE -->
+    <section class="section" id="sec-purchase">
+      <div class="page-head">
+        <div><h2>خریداری (کاشتکار سے)</h2><div class="sub">اجناس کی خریداری، وزن، ریٹ اور کمیشن کا اندراج</div></div>
+        <button class="btn btn-primary" onclick="openPurchaseModal()">+ نئی خریداری</button>
+      </div>
+      <div class="toolbar">
+        <input type="date" id="pfDate" onchange="renderPurchases()">
+        <input type="text" id="pfSearch" placeholder="کاشتکار یا جنس تلاش کریں" oninput="renderPurchases()">
+        <button class="btn btn-outline btn-sm" onclick="clearFilters('purchase')">صاف کریں</button>
+      </div>
+      <div class="table-wrap"><table id="purchaseTable"></table></div>
+    </section>
+
+    <!-- SALES -->
+    <section class="section" id="sec-sales">
+      <div class="page-head">
+        <div><h2>فروخت</h2><div class="sub">گاہک کو نقد یا ادھار فروخت کا اندراج</div></div>
+        <button class="btn btn-primary" onclick="openSaleModal()">+ نئی فروخت</button>
+      </div>
+      <div class="toolbar">
+        <input type="date" id="sfDate" onchange="renderSales()">
+        <input type="text" id="sfSearch" placeholder="گاہک یا جنس تلاش کریں" oninput="renderSales()">
+        <button class="btn btn-outline btn-sm" onclick="clearFilters('sales')">صاف کریں</button>
+      </div>
+      <div class="table-wrap"><table id="salesTable"></table></div>
+    </section>
+
+    <!-- CASH BOOK -->
+    <section class="section" id="sec-cashbook">
+      <div class="page-head">
+        <div><h2>کیش بک</h2><div class="sub">نقد وصولی اور ادائیگی کا مکمل ریکارڈ (ڈیبٹ / کریڈٹ)</div></div>
+        <button class="btn btn-primary" onclick="openCashModal()">+ نئی انٹری</button>
+      </div>
+      <div class="grid grid-3" style="margin-bottom:14px;">
+        <div class="card stat-card"><div class="label">کل وصولی (کریڈٹ)</div><div class="value pos" id="cbIn">0</div></div>
+        <div class="card stat-card"><div class="label">کل ادائیگی (ڈیبٹ)</div><div class="value neg" id="cbOut">0</div></div>
+        <div class="card stat-card"><div class="label">موجودہ نقد بیلنس</div><div class="value info" id="cbBalance">0</div></div>
+      </div>
+      <div class="table-wrap"><table id="cashTable"></table></div>
+    </section>
+
+    <!-- DAILY CLOSING -->
+    <section class="section" id="sec-closing">
+      <div class="page-head">
+        <div><h2>یومیہ اختتام (Daily Closing)</h2><div class="sub">دن کا مکمل حساب بند کریں</div></div>
+      </div>
+      <div class="card" style="max-width:520px;">
+        <div class="field"><label>تاریخ منتخب کریں</label><input type="date" id="closingDate" onchange="renderClosingPreview()"></div>
+        <div id="closingPreview"></div>
+        <button class="btn btn-primary" style="margin-top:14px;" onclick="closeDay()">🔒 آج کا دن بند کریں</button>
+      </div>
+      <h3 style="margin-top:26px;">پچھلے بند دن</h3>
+      <div class="table-wrap"><table id="closingTable"></table></div>
+    </section>
+
+    <!-- CUSTOMERS -->
+    <section class="section" id="sec-customers">
+      <div class="page-head">
+        <div><h2>گاہک / بیوپاری</h2><div class="sub">کھاتہ داری اور بقایا جات</div></div>
+        <button class="btn btn-primary" onclick="openCustomerModal()">+ نیا گاہک</button>
+      </div>
+      <div class="table-wrap"><table id="customerTable"></table></div>
+    </section>
+
+    <!-- FARMERS -->
+    <section class="section" id="sec-farmers">
+      <div class="page-head">
+        <div><h2>کاشتکار</h2><div class="sub">کاشتکاروں کا ریکارڈ اور بقایا رقم</div></div>
+        <button class="btn btn-primary" onclick="openFarmerModal()">+ نیا کاشتکار</button>
+      </div>
+      <div class="table-wrap"><table id="farmerTable"></table></div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section class="section" id="sec-products">
+      <div class="page-head">
+        <div><h2>مصنوعات / انوینٹری</h2><div class="sub">فروٹ و سبزی کے اسٹاک کی نگرانی</div></div>
+        <button class="btn btn-primary" onclick="openProductModal()">+ نئی جنس</button>
+      </div>
+      <div class="table-wrap"><table id="productTable"></table></div>
+    </section>
+
+    <!-- COMMISSION -->
+    <section class="section" id="sec-commission">
+      <div class="page-head">
+        <div><h2>کمیشن رولز</h2><div class="sub">کمیشن کا حساب فی بوری، فی کلو، فیصد یا مقرر رقم</div></div>
+        <button class="btn btn-primary" onclick="openCommissionModal()">+ نیا رول</button>
+      </div>
+      <div class="table-wrap"><table id="commissionTable"></table></div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="section" id="sec-reports">
+      <div class="page-head">
+        <div><h2>رپورٹس</h2><div class="sub" id="reportAutoLabel">ہر 15 سیکنڈ بعد خودکار تازہ</div></div>
+      </div>
+      <div class="toolbar">
+        <select id="reportType" onchange="renderReport()">
+          <option value="sales">فروخت رپورٹ</option>
+          <option value="purchase">خریداری رپورٹ</option>
+          <option value="profit">نفع و نقصان</option>
+          <option value="ledger">کھاتہ (گاہک/کاشتکار)</option>
+        </select>
+        <input type="date" id="repFrom" onchange="renderReport()">
+        <input type="date" id="repTo" onchange="renderReport()">
+        <button class="btn btn-outline btn-sm" onclick="printReport()">🖨️ پرنٹ</button>
+        <button class="btn btn-outline btn-sm" onclick="exportReportCsv()">⬇️ CSV</button>
+      </div>
+      <div id="reportSummary" class="grid grid-4" style="margin-bottom:14px;"></div>
+      <div class="table-wrap"><table id="reportTable"></table></div>
+    </section>
+
+    <!-- USERS -->
+    <section class="section" id="sec-users">
+      <div class="page-head">
+        <div><h2>صارفین و اجازتیں</h2><div class="sub">یوزر رول بیسڈ سیکیورٹی</div></div>
+        <button class="btn btn-primary" onclick="openUserModal()">+ نیا صارف</button>
+      </div>
+      <div class="table-wrap"><table id="userTable"></table></div>
+      <h3 style="margin-top:26px;">لاگ ان ہسٹری / آڈٹ لاگ</h3>
+      <div class="table-wrap"><table id="auditTable"></table></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="section" id="sec-settings">
+      <div class="page-head"><div><h2>ترتیبات</h2><div class="sub">بیک اپ، بحالی اور سیکیورٹی</div></div></div>
+      <div class="grid grid-2">
+        <div class="card">
+          <h3 style="margin-top:0;">🔐 پاس ورڈ تبدیل کریں</h3>
+          <div class="field"><label>موجودہ پاس ورڈ</label><input type="password" id="curPass"></div>
+          <div class="field"><label>نیا پاس ورڈ</label><input type="password" id="newPass"></div>
+          <button class="btn btn-primary" onclick="changePassword()">پاس ورڈ اپڈیٹ کریں</button>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">💾 ڈیٹا بیک اپ / بحالی</h3>
+          <p class="text-dim" style="font-size:13px;">تمام ڈیٹا ایک فائل میں محفوظ کریں، یا پہلے سے محفوظ شدہ فائل واپس لوڈ کریں۔</p>
+          <button class="btn btn-outline btn-block" style="margin-bottom:10px;" onclick="backupData()">⬇️ بیک اپ ڈاؤن لوڈ کریں</button>
+          <input type="file" id="restoreFile" accept="application/json" style="display:none" onchange="restoreData(event)">
+          <button class="btn btn-outline btn-block" onclick="document.getElementById('restoreFile').click()">⬆️ بیک اپ سے بحال کریں</button>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">🏪 دکان کی معلومات</h3>
+          <div class="field"><label>دکان کا نام</label><input type="text" id="shopName" onchange="db.branch.name=this.value; saveNote(); renderTopbar();" ></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0;">⚠️ اہم نوٹ</h3>
+          <p class="text-dim" style="font-size:13px;line-height:1.9;">
+            یہ سافٹ ویئر ایک براؤزر فائل کے طور پر کام کرتا ہے — ڈیٹا صرف موجودہ سیشن میں محفوظ رہتا ہے،
+            اس لیے کام ختم کرنے سے پہلے ہمیشہ بیک اپ ڈاؤن لوڈ کریں۔ حقیقی کاروباری استعمال کے لیے
+            (نیٹ ورک پر متعدد کمپیوٹرز، مستقل ڈیٹا بیس، اور بینک درجے کی سیکیورٹی) ایک سرور بیسڈ ورژن بنانا بہتر ہوگا۔
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="overlay" id="modalOverlay"><div class="modal" id="modalBody"></div></div>
+<div id="toastHost"></div>
+
+<script>
+/* =========================================================================
+   DATA MODEL (in-memory — see Settings > Backup for persistence)
+   ========================================================================= */
+let db = {
+  branch:{ name:"میری منڈی دکان" },
+  users:[{id:1, username:"admin", name:"ایڈمن صارف", role:"admin", active:true, passwordHash:null, salt:null}],
+  loginHistory:[],
+  auditLog:[],
+  customers:[
+    {id:1,name:"محمد اسلم بیوپاری",mobile:"03001234567",address:"لاہور",openingBalance:0,balance:0},
+    {id:2,name:"فیصل ٹریڈرز",mobile:"03007654321",address:"قصور",openingBalance:5000,balance:5000}
+  ],
+  farmers:[
+    {id:1,name:"چوہدری رمضان",village:"چونیاں",mobile:"03009988776",balance:0},
+    {id:2,name:"بابا نذیر احمد",village:"پتوکی",mobile:"03011122334",balance:0}
+  ],
+  products:[
+    {id:1,name:"ٹماٹر",unit:"کلوگرام",purchasePrice:80,salePrice:110,stock:500,alertQty:100},
+    {id:2,name:"آلو",unit:"کلوگرام",purchasePrice:60,salePrice:85,stock:800,alertQty:150},
+    {id:3,name:"پیاز",unit:"کلوگرام",purchasePrice:70,salePrice:95,stock:300,alertQty:100}
+  ],
+  commissionRules:[
+    {id:1,name:"عام کمیشن 5%",type:"percentage",value:5},
+    {id:2,name:"فی بوری 50 روپے",type:"perBag",value:50}
+  ],
+  purchases:[],
+  sales:[],
+  cashEntries:[],
+  closings:[],
+  nextId:{customer:3,farmer:3,product:4,commission:3,purchase:1,sale:1,cash:1,user:2}
+};
+
+let session = { userId:null };
+let editState = {};
+
+/* ---------------- utility ---------------- */
+function uid(key){ return db.nextId[key]++; }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function fmtMoney(n){ return "روپے " + Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0}); }
+function toast(msg, kind){
+  const host = document.getElementById('toastHost');
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind?(' '+kind):'');
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(()=>el.remove(), 3200);
+}
+function audit(action, detail){
+  db.auditLog.unshift({ at:new Date().toLocaleString('ur-PK'), user:currentUser()?.name||'—', action, detail });
+  if(db.auditLog.length>300) db.auditLog.pop();
+}
+function currentUser(){ return db.users.find(u=>u.id===session.userId); }
+function hasPerm(section){
+  const u = currentUser(); if(!u) return false;
+  if(u.role==='admin') return true;
+  const rolePerms = { manager:['dashboard','purchase','sales','cashbook','closing','customers','farmers','products','commission','reports'],
+                       cashier:['dashboard','purchase','sales','cashbook'] };
+  return (rolePerms[u.role]||[]).includes(section);
+}
+
+/* ---------------- password hashing (client-side SHA-256) ----------------
+   Note: this provides basic access-gating suitable for a single-PC tool.
+   It is NOT a substitute for real server-side authentication/encryption. */
+async function hashPassword(password, salt){
+  const enc = new TextEncoder().encode(salt + ":" + password);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function randomSalt(){ return Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b=>b.toString(16)).join(''); }
+
+async function initDefaultAdmin(){
+  const salt = randomSalt();
+  db.users[0].salt = salt;
+  db.users[0].passwordHash = await hashPassword('admin123', salt);
+}
+
+/* =========================================================================
+   LOGIN
+   ========================================================================= */
+async function handleLogin(){
+  const uname = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errBox = document.getElementById('loginError');
+  const user = db.users.find(u=>u.username===uname && u.active);
+  if(!user){ errBox.style.display='block'; errBox.textContent='یوزر نیم غلط ہے یا اکاؤنٹ غیر فعال ہے۔'; db.loginHistory.unshift({user:uname,at:new Date().toLocaleString('ur-PK'),success:false}); return; }
+  const hash = await hashPassword(pass, user.salt);
+  if(hash !== user.passwordHash){
+    errBox.style.display='block'; errBox.textContent='پاس ورڈ درست نہیں ہے۔';
+    db.loginHistory.unshift({user:uname,at:new Date().toLocaleString('ur-PK'),success:false});
+    return;
+  }
+  errBox.style.display='none';
+  session.userId = user.id;
+  db.loginHistory.unshift({user:uname,at:new Date().toLocaleString('ur-PK'),success:true});
+  audit('لاگ ان', uname + ' نے سسٹم میں داخل ہوا');
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('active');
+  buildSidebar();
+  renderTopbar();
+  showSection('dashboard');
+  startAutoRefresh();
+}
+function doLogout(){
+  audit('لاگ آؤٹ', currentUser()?.username + ' نے سسٹم سے خارج ہوا');
+  session.userId = null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginPass').value='';
+}
+
+/* =========================================================================
+   SHELL / NAV
+   ========================================================================= */
+const NAV = [
+  {id:'dashboard', label:'ڈیش بورڈ', ic:'📊'},
+  {id:'purchase', label:'خریداری', ic:'🧺'},
+  {id:'sales', label:'فروخت', ic:'💰'},
+  {id:'cashbook', label:'کیش بک', ic:'📒'},
+  {id:'closing', label:'یومیہ اختتام', ic:'🔒'},
+  {id:'customers', label:'گاہک / بیوپاری', ic:'🧑‍💼'},
+  {id:'farmers', label:'کاشتکار', ic:'👨‍🌾'},
+  {id:'products', label:'مصنوعات', ic:'🥕'},
+  {id:'commission', label:'کمیشن رولز', ic:'📐'},
+  {id:'reports', label:'رپورٹس', ic:'📈'},
+  {id:'users', label:'صارفین', ic:'🛡️'},
+  {id:'settings', label:'ترتیبات', ic:'⚙️'}
+];
+function buildSidebar(){
+  const bar = document.getElementById('sidebar');
+  bar.innerHTML = '';
+  NAV.forEach(item=>{
+    if(!hasPerm(item.id)) return;
+    const div = document.createElement('div');
+    div.className='nav-item'; div.id='nav-'+item.id;
+    div.innerHTML = `<span class="ic">${item.ic}</span><span>${item.label}</span>`;
+    div.onclick=()=>showSection(item.id);
+    bar.appendChild(div);
+  });
+}
+function renderTopbar(){
+  document.getElementById('whoLabel').textContent = `${db.branch.name} · ${currentUser()?.name||''} (${roleLabel(currentUser()?.role)})`;
+  document.getElementById('shopName').value = db.branch.name;
+}
+function roleLabel(r){ return {admin:'منتظم',manager:'منیجر',cashier:'کیشیئر'}[r]||r; }
+
+function showSection(id){
+  if(!hasPerm(id)){ toast('آپ کو اس سیکشن کی اجازت نہیں ہے','err'); return; }
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('nav-'+id)?.classList.add('active');
+  const renderers = { dashboard:renderDashboard, purchase:renderPurchases, sales:renderSales,
+    cashbook:renderCashbook, closing:renderClosingPreview, customers:renderCustomers,
+    farmers:renderFarmers, products:renderProducts, commission:renderCommission,
+    reports:renderReport, users:renderUsers, settings:()=>{} };
+  renderers[id] && renderers[id]();
+}
+
+function toggleTheme(){
+  const html = document.documentElement;
+  const dark = html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme', dark?'light':'dark');
+  document.getElementById('themeBtn').textContent = dark? '🌙 ڈارک موڈ' : '☀️ لائٹ موڈ';
+}
+function saveNote(){ toast('محفوظ ہو گیا','ok'); }
+
+/* =========================================================================
+   MODAL HELPERS
+   ========================================================================= */
+function openModal(html){ document.getElementById('modalBody').innerHTML = html; document.getElementById('modalOverlay').classList.add('active'); }
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('active'); }
+
+/* =========================================================================
+   PRODUCTS
+   ========================================================================= */
+function renderProducts(){
+  const t = document.getElementById('productTable');
+  t.innerHTML = `<tr><th>نام</th><th>یونٹ</th><th>خرید ریٹ</th><th>فروخت ریٹ</th><th>اسٹاک</th><th>حالت</th><th></th></tr>` +
+    db.products.map(p=>`<tr>
+      <td>${p.name}</td><td>${p.unit}</td><td>${fmtMoney(p.purchasePrice)}</td><td>${fmtMoney(p.salePrice)}</td>
+      <td>${p.stock}</td>
+      <td>${p.stock<=p.alertQty?'<span class="tag red">اسٹاک کم ہے</span>':'<span class="tag green">ٹھیک ہے</span>'}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="openProductModal(${p.id})">ترمیم</button></td>
+    </tr>`).join('');
+}
+function openProductModal(id){
+  const p = id? db.products.find(x=>x.id===id) : {name:'',unit:'کلوگرام',purchasePrice:0,salePrice:0,stock:0,alertQty:50};
+  openModal(`<h3>${id?'جنس میں ترمیم':'نئی جنس شامل کریں'}</h3>
+    <div class="form-grid">
+      <div class="field"><label>نام</label><input id="m_name" value="${p.name}"></div>
+      <div class="field"><label>یونٹ</label><input id="m_unit" value="${p.unit}"></div>
+      <div class="field"><label>خرید ریٹ</label><input type="number" id="m_pp" value="${p.purchasePrice}"></div>
+      <div class="field"><label>فروخت ریٹ</label><input type="number" id="m_sp" value="${p.salePrice}"></div>
+      <div class="field"><label>موجودہ اسٹاک</label><input type="number" id="m_stock" value="${p.stock}"></div>
+      <div class="field"><label>کم اسٹاک الرٹ</label><input type="number" id="m_alert" value="${p.alertQty}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveProduct(${id||0})">محفوظ کریں</button>
+      <button class="btn btn-outline" onclick="closeModal()">منسوخ</button>
+    </div>`);
+}
+function saveProduct(id){
+  const data = { name:val('m_name'), unit:val('m_unit'), purchasePrice:+val('m_pp'), salePrice:+val('m_sp'), stock:+val('m_stock'), alertQty:+val('m_alert') };
+  if(id){ Object.assign(db.products.find(p=>p.id===id), data); audit('جنس اپڈیٹ', data.name); }
+  else { data.id = uid('product'); db.products.push(data); audit('نئی جنس', data.name); }
+  closeModal(); renderProducts(); toast('محفوظ ہو گیا','ok');
+}
+function val(id){ return document.getElementById(id).value; }
+
+/* =========================================================================
+   CUSTOMERS
+   ========================================================================= */
+function renderCustomers(){
+  const t = document.getElementById('customerTable');
+  t.innerHTML = `<tr><th>نام</th><th>موبائل</th><th>پتہ</th><th>بقایا بیلنس</th><th></th></tr>` +
+    db.customers.map(c=>`<tr><td>${c.name}</td><td>${c.mobile||'—'}</td><td>${c.address||'—'}</td>
+      <td>${c.balance>0?'<span class="tag red">'+fmtMoney(c.balance)+' واجب الادا</span>':'<span class="tag green">صاف</span>'}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="openCustomerModal(${c.id})">ترمیم</button></td></tr>`).join('');
+}
+function openCustomerModal(id){
+  const c = id? db.customers.find(x=>x.id===id) : {name:'',mobile:'',address:'',openingBalance:0};
+  openModal(`<h3>${id?'گاہک میں ترمیم':'نیا گاہک'}</h3>
+    <div class="form-grid">
+      <div class="field"><label>نام</label><input id="m_name" value="${c.name}"></div>
+      <div class="field"><label>موبائل</label><input id="m_mobile" value="${c.mobile||''}"></div>
+      <div class="field"><label>پتہ</label><input id="m_addr" value="${c.address||''}"></div>
+      <div class="field"><label>ابتدائی بیلنس</label><input type="number" id="m_ob" value="${c.openingBalance||0}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveCustomer(${id||0})">محفوظ کریں</button>
+      <button class="btn btn-outline" onclick="closeModal()">منسوخ</button>
+    </div>`);
+}
+function saveCustomer(id){
+  const data = { name:val('m_name'), mobile:val('m_mobile'), address:val('m_addr'), openingBalance:+val('m_ob') };
+  if(id){ const c=db.customers.find(x=>x.id===id); Object.assign(c,data); }
+  else { data.id=uid('customer'); data.balance=data.openingBalance; db.customers.push(data); }
+  closeModal(); renderCustomers(); toast('محفوظ ہو گیا','ok');
+}
+
+/* =========================================================================
+   FARMERS
+   ========================================================================= */
+function renderFarmers(){
+  const t = document.getElementById('farmerTable');
+  t.innerHTML = `<tr><th>نام</th><th>گاؤں</th><th>موبائل</th><th>بقایا رقم</th><th></th></tr>` +
+    db.farmers.map(f=>`<tr><td>${f.name}</td><td>${f.village||'—'}</td><td>${f.mobile||'—'}</td>
+      <td>${f.balance>0?'<span class="tag red">'+fmtMoney(f.balance)+' ادا کرنا ہے</span>':'<span class="tag green">صاف</span>'}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="openFarmerModal(${f.id})">ترمیم</button></td></tr>`).join('');
+}
+function openFarmerModal(id){
+  const f = id? db.farmers.find(x=>x.id===id) : {name:'',village:'',mobile:''};
+  openModal(`<h3>${id?'کاشتکار میں ترمیم':'نیا کاشتکار'}</h3>
+    <div class="form-grid">
+      <div class="field"><label>نام</label><input id="m_name" value="${f.name}"></div>
+      <div class="field"><label>گاؤں</label><input id="m_village" value="${f.village||''}"></div>
+      <div class="field"><label>موبائل</label><input id="m_mobile" value="${f.mobile||''}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveFarmer(${id||0})">محفوظ کریں</button>
+      <button class="btn btn-outline" onclick="closeModal()">منسوخ</button>
+    </div>`);
+}
+function saveFarmer(id){
+  const data = { name:val('m_name'), village:val('m_village'), mobile:val('m_mobile') };
+  if(id){ Object.assign(db.farmers.find(x=>x.id===id), data); }
+  else { data.id=uid('farmer'); data.balance=0; db.farmers.push(data); }
+  closeModal(); renderFarmers(); toast('محفوظ ہو گیا','ok');
+}
+
+/* =========================================================================
+   COMMISSION RULES
+   ========================================================================= */
+const commTypeLabel = { percentage:'فیصد', perBag:'فی بوری', perKg:'فی کلوگرام', fixed:'مقرر رقم' };
+function renderCommission(){
+  const t = document.getElementById('commissionTable');
+  t.innerHTML = `<tr><th>نام</th><th>قسم</th><th>ویلیو</th><th></th></tr>` +
+    db.commissionRules.map(c=>`<tr><td>${c.name}</td><td>${commTypeLabel[c.type]}</td><td>${c.type==='percentage'?c.value+'%':fmtMoney(c.value)}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="openCommissionModal(${c.id})">ترمیم</button></td></tr>`).join('');
+}
+function openCommissionModal(id){
+  const c = id? db.commissionRules.find(x=>x.id===id) : {name:'',type:'percentage',value:0};
+  openModal(`<h3>${id?'کمیشن رول میں ترمیم':'نیا کمیشن رول'}</h3>
+    <div class="form-grid">
+      <div class="field"><label>نام</label><input id="m_name" value="${c.name}"></div>
+      <div class="field"><label>قسم</label>
+        <select id="m_type">
+          ${Object.entries(commTypeLabel).map(([k,v])=>`<option value="${k}" ${c.type===k?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>ویلیو</label><input type="number" id="m_value" value="${c.value}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveCommission(${id||0})">محفوظ کریں</button>
+      <button class="btn btn-outline" onclick="closeModal()">منسوخ</button>
+    </div>`);
+}
+function saveCommission(id){
+  const data = { name:val('m_name'), type:val('m_type'), value:+val('m_value') };
+  if(id){ Object.assign(db.commissionRules.find(x=>x.id===id), data); }
+  else { data.id=uid('commission'); db.commissionRules.push(data); }
+  closeModal(); renderCommission(); toast('محفوظ ہو گیا','ok');
+}
+function calcCommission(rule, qty, bags, amount){
+  if(!rule) return 0;
+  if(rule.type==='percentage') return amount * rule.value/100;
+  if(rule.type==='perBag') return bags * rule.value;
+  if(rule.type==='perKg') return qty * rule.value;
+  if(rule.type==='fixed') return rule.value;
+  return 0;
+}
+
+/* =========================================================================
+   PURCHASE
+   ========================================================================= */
+function renderPurchases(){
+  const dateF = val('pfDate'), search=(document.getElementById('pfSearch').value||'').toLowerCase();
+  let rows = db.purchases.slice().reverse().filter(p=>{
+    if(dateF && p.date!==dateF) return false;
+    const f = db.farmers.find(x=>x.id===p.farmerId), pr = db.products.find(x=>x.id===p.productId);
+    if(search && !(f?.name.toLowerCase().includes(search) || pr?.name.toLowerCase().includes(search))) return false;
+    return true;
+  });
+  const t = document.getElementById('purchaseTable');
+  t.innerHTML = `<tr><th>تاریخ</th><th>کاشتکار</th><th>جنس</th><th>وزن</th><th>بوری</th><th>ریٹ</th><th>رقم</th><th>کمیشن</th><th>ادا شدہ نقد</th><th>بقایا (کاشتکار)</th></tr>` +
+    rows.map(p=>{
+      const f=db.farmers.find(x=>x.id===p.farmerId), pr=db.products.find(x=>x.id===p.productId);
+      return `<tr><td>${p.date}</td><td>${f?.name||'—'}</td><td>${pr?.name||'—'}</td><td>${p.qty} ${pr?.unit||''}</td><td>${p.bags}</td><td>${fmtMoney(p.rate)}</td>
+        <td>${fmtMoney(p.amount)}</td><td>${fmtMoney(p.commissionAmount)}</td><td>${fmtMoney(p.paidCash)}</td>
+        <td>${p.dueToFarmer>0?'<span class="tag red">'+fmtMoney(p.dueToFarmer)+'</span>':'<span class="tag green">صاف</span>'}</td></tr>`;
+    }).join('') || `<tr><td colspan="10" class="text-dim" style="text-align:center;padding:20px;">کوئی ریکارڈ نہیں</td></tr>`;
+}
+function openPurchaseModal(){
+  openModal(`<h3>نئی خریداری</h3>
+    <div class="form-grid">
+      <div class="field"><label>تاریخ</label><input type="date" id="m_date" value="${todayStr()}"></div>
+      <div class="field"><label>کاشتکار</label><select id="m_farmer">${db.farmers.map(f=>`<option value="${f.id}">${f.name}</option>`).join('')}</select></div>
+      <div class="field"><label>جنس</label><select id="m_product" onchange="purchaseModalRecalc()">${db.products.map(p=>`<option value="${p.id}" data-price="${p.purchasePrice}">${p.name}</option>`).join('')}</select></div>
+      <div class="field"><label>کمیشن رول</label><select id="m_comm">${db.commissionRules.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}<option value="0">کوئی نہیں</option></select></div>
+      <div class="field"><label>وزن (کلوگرام)</label><input type="number" id="m_qty" value="0" oninput="purchaseModalRecalc()"></div>
+      <div class="field"><label>بوریوں کی تعداد</label><input type="number" id="m_bags" value="0" oninput="purchaseModalRecalc()"></div>
+      <div class="field"><label>ریٹ (فی کلوگرام)</label><input type="number" id="m_rate" value="0" oninput="purchaseModalRecalc()"></div>
+      <div class="field"><label>اضافی اخراجات</label><input type="number" id="m_exp" value="0" oninput="purchaseModalRecalc()"></div>
+      <div class="field"><label>نقد ادائیگی ابھی</label><input type="number" id="m_paid" value="0"></div>
+    </div>
+    <div class="card" style="margin-top:10px;background:var(--surface-2);">
+      <div>کل رقم: <b id="pv_amount">0</b></div>
+      <div>کمیشن: <b id="pv_comm">0</b></div>
+      <div>خالص ادائیگی (کاشتکار کو): <b id="pv_net">0</b></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="savePurchase()">محفوظ کریں</button>
+      <button class="btn btn-outline" onclick="closeModal()">منسوخ</button>
+    </div>`);
+  purchaseModalRecalc();
+}
+function purchaseModalRecalc(){
+  const qty=+val('m_qty'), rate=+val('m_rate'), bags=+val('m_bags'), exp=+val('m_exp');
+  const commRule = db.commissionRules.find(c=>c.id==val('m_comm'));
+  const amount = qty*rate;
+  const comm = calcCommission(commRule, qty, bags, amount);
+  const net = amount - comm - exp;
+  document.getElementById('pv_amount').textContent = fmtMoney(amount);
+  document.getElementById('pv_comm').textContent = fmtMoney(comm);
+  document.getElementById('pv_net').textContent = fmtMoney(net);
+}
+function savePurchase(){
+  const qty=+val('m_qty'), rate=+val('m_rate'), bags=+val('m_bags'), exp=+val('m_exp'), paid=+val('m_paid');
+  const farmerId=+val('m_farmer'), productId=+val('m_product'), commId=+val('m_comm');
+  if(qty<=0||rate<=0){ toast('وزن اور ریٹ درست درج کریں','err'); return; }
+  const commRule = db.commissionRules.find(c=>c.id===commId);
+  const amount = qty*rate;
+  const commissionAmount = calcCommission(commRule, qty, bags, amount);
+  const netPayable = amount - commissionAmount - exp;
+  const dueToFarmer = Math.max(0, netPayable - paid);
+  const rec = { id:uid('purchase'), date:val('m_date'), farmerId, productId, qty, bags, rate, amount,
+    commissionRuleId:commId||null, commissionAmount, expense:exp, netPayable, paidCash:paid, dueToFarmer };
+  db.purchases.push(rec);
+  const product = db.products.find(p=>p.id===productId); if(product) product.stock += qty;
+  const farmer = db.farmers.find(f=>f.id===farmerId); if(farmer) farmer.balance += dueToFarmer;
+  if(paid>0) db.cashEntries.push({id:uid('cash'), date:rec.date, type:'out', category:'خریداری ادائیگی', amount:paid, note:(farmer?.name||'')+' کو ادائیگی', refType:'purchase', refId:rec.id});
+  audit('نئی خریداری', `${farmer?.name} — ${fmtMoney(amount)}`);
+  closeModal(); renderPurchases(); toast('خریداری محفوظ ہو گئی','ok');
+}
+function clearFilters(kind){
+  if(kind==='purchase'){ document.getElementById('pfDate').value=''; document.getElementById('pfSearch').value=''; renderPurchases(); }
+  else { document.getElementById('sfDate').value=''; document.getElementById('sfSearch').value=''; renderSales(); }
+}
+
+/* =========================================================================
+   SALES
+   ========================================================================= */
+function renderSales(){
+  const dateF = val('sfDate'), search=(document.getElementById('sfSearch').value||'').toLowerCase();
+  let rows = db.sales.slice().reverse().filter(s=>{
+    if(dateF && s.date!==dateF) return false;
+    const c = db.customers.find(x=>x.id===s.customerId), pr = db.products.find(x=>x.id===s.productId);
+    if(search && !(c?.name.toLowerCase().includes(search) || pr?.name.toLowerCase().includes(search))) return false;
+    return true;
+  });
+  const t = document.getElementById('salesTable');
+  t.innerHTML = `<tr><th>تاریخ</th><th>گاہک</th><th>جنس</th><th>مقدار</th><th>ریٹ</th><th>رقم</th><th>ادائیگی کی قسم</th><th>وصول شدہ</th><th>بقایا</th></tr>` +
+    rows.map(s=>{
+      const c=db.customers.find(x=>x.id===s.customerId), pr=db.products.find(x=>x.id===s.productId);
+      return `<tr><td>${s.date}</td><td>${c?.name||'نقد گاہک'}</td><td>${pr?.name||'—'}</td><td>${s.qty} ${pr?.unit||''}</td><td>${fmtMoney(s.rate)}</td>
+        <td>${fmtMoney(s.amount)}</td><td><span class="tag ${s.paymentType==='cash'?'green':'gray'}">${s.paymentType==='cash'?'نقد':'ادھار'}</span></td>
+        <td>${fmtMoney(s.paidAmount)}</td><td>${s.dueFromCustomer>0?'<span class="tag red">'+fmtMoney(s.dueFromCustomer)+'</span>':'<span class="tag green">صاف</span>'}</td></tr>`;
+    }).join('') || `<tr><td colspan="9" class="text-dim" style="text-align:center;padding:20px;">کوئی ریکارڈ نہیں</td></tr>`;
+}
+function openSaleModal(){
+  openModal(`<h3>نئی فروخت</h3>
+    <div class="form-grid">
+      <div class="field"><label>تاریخ</label><input type="date" id="m_date" value="${todayStr()}"></div>
+      <div class="field"><label>گاہک</label><select id="m_customer"><option value="0">نقد گاہک</option>${db.customers.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
+      <div class="field"><label>جنس</label><select id="m_product" onchange="saleModalRecalc()">${db.products.map(p=>`<option value="${p.id}" data-price="${p.salePrice}">${p.name} (اسٹاک: ${p.stock})</option>`).join('')}</select></div>
+      <div class="field"><label>ادائیگی کی قسم</label><select id="m_ptype" onchange="saleModalRecalc()"><option value="cash">نقد</option><option value="credit">ادھار</option></select></div>
+      <div class="field"><label>مقدار</label><input type="number" id="m_qty" value="0" oninput="saleModalRecalc()"></div>
+      <div class="field"><label>ریٹ</label><input type="number" id="m_rate" value="0" oninput="saleModalRecalc()"></div>
+      <div class="field"><label>ڈسکاؤنٹ</label><input type="number" id="m_disc" value="0" oninput="saleModalRecalc()"></div>
+      <div class="field"><label>وصول شدہ رقم</label><input type="number" id="m_paid" value="0" oninput="saleModalRecalc()"></div>
+    </div>
+    <div class="card" style="margin-top:10px;background:var(--surface-2);">
+      <div>کل رقم: <b id="sv_amount">0</b></div>
+      <div>بقایا: <b id="sv_due">0</b></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveSale()">محفوظ کریں</button>
+      <button class="btn btn-outline" onclick="closeModal()">منسوخ</button>
+    </div>`);
+  saleModalRecalc();
+}
+function saleModalRecalc(){
+  const qty=+val('m_qty'), rate=+val('m_rate'), disc=+val('m_disc'), paid=+val('m_paid');
+  const amount = qty*rate - disc;
+  document.getElementById('sv_amount').textContent = fmtMoney(amount);
+  document.getElementById('sv_due').textContent = fmtMoney(Math.max(0, amount-paid));
+}
+function saveSale(){
+  const qty=+val('m_qty'), rate=+val('m_rate'), disc=+val('m_disc'), paid=+val('m_paid');
+  const customerId=+val('m_customer'), productId=+val('m_product'), ptype=val('m_ptype');
+  const product = db.products.find(p=>p.id===productId);
+  if(qty<=0||rate<=0){ toast('مقدار اور ریٹ درست درج کریں','err'); return; }
+  if(product && qty>product.stock){ toast('اسٹاک ناکافی ہے','err'); return; }
+  const amount = qty*rate - disc;
+  const paidAmount = ptype==='cash'? amount : paid;
+  const dueFromCustomer = Math.max(0, amount - paidAmount);
+  const rec = { id:uid('sale'), date:val('m_date'), customerId:customerId||null, productId, qty, rate, discount:disc,
+    amount, paymentType:ptype, paidAmount, dueFromCustomer };
+  db.sales.push(rec);
+  if(product) product.stock -= qty;
+  if(customerId){ const c=db.customers.find(x=>x.id===customerId); if(c) c.balance += dueFromCustomer; }
+  if(paidAmount>0) db.cashEntries.push({id:uid('cash'), date:rec.date, type:'in', category:'فروخت وصولی', amount:paidAmount, note:(db.customers.find(c=>c.id===customerId)?.name||'نقد گاہک'), refType:'sale', refId:rec.id});
+  audit('نئی فروخت', `${product?.name} — ${fmtMoney(amount)}`);
+  closeModal(); renderSales(); toast('فروخت محفوظ ہو گئی','ok');
+}
+
+/* =========================================================================
+   CASH BOOK
+   ========================================================================= */
+function cashBalance(){ return db.cashEntries.reduce((s,e)=> s + (e.type==='in'? e.amount : -e.amount), 0); }
+function renderCashbook(){
+  const inTotal = db.cashEntries.filter(e=>e.type==='in').reduce((s,e)=>s+e.amount,0);
+  const outTotal = db.cashEntries.filter(e=>e.type==='out').reduce((s,e)=>s+e.amount,0);
+  document.getElementById('cbIn').textContent = fmtMoney(inTotal);
+  document.getElementById('cbOut').textContent = fmtMoney(outTotal);
+  document.getElementById('cbBalance').textContent = fmtMoney(inTotal-outTotal);
+  const t = document.getElementById('cashTable');
+  t.innerHTML = `<tr><th>تاریخ</th><th>قسم</th><th>کیٹگری</th><th>تفصیل</th><th>رقم</th></tr>` +
+    db.cashEntries.slice().reverse().map(e=>`<tr><td>${e.date}</td>
+      <td><span class="tag ${e.type==='in'?'green':'red'}">${e.type==='in'?'وصولی (کریڈٹ)':'ادائیگی (ڈیبٹ)'}</span></td>
+      <td>${e.category}</td><td>${e.note||'—'}</td><td>${fmtMoney(e.amount)}</td></tr>`).join('') ||
+      `<tr><td colspan="5" class="text-dim" style="text-align:center;padding:20px;">کوئی انٹری نہیں</td></tr>`;
+}
+function openCashModal(){
+  openModal(`<h3>نئی کیش انٹری</h3>
+    <div class="form-grid">
+      <div class="field"><label>تاریخ</label><input type="date" id="m_date" value="${todayStr()}"></div>
+      <div class="field"><label>قسم</label><select id="m_type"><option value="in">وصولی (کریڈٹ)</option><option value="out">ادائیگی (ڈیبٹ)</option></select></div>
+      <div class="field"><label>کیٹگری</label><input id="m_cat" placeholder="مثلاً کرایہ، بجلی، تنخواہ"></div>
+      <div class="field"><label>رقم</label><input type="number" id="m_amount" value="0"></div>
+      <div class="field" style="grid-column:1/-1;"><label>تفصیل</label><input id="m_note"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveCashEntry()">محفوظ کریں</button>
+      <button class="btn btn-outline" onclick="closeModal()">منسوخ</button>
+    </div>`);
+}
+function saveCashEntry(){
+  const amount=+val('m_amount');
+  if(amount<=0){ toast('رقم درست درج کریں','err'); return; }
+  db.cashEntries.push({id:uid('cash'), date:val('m_date'), type:val('m_type'), category:val('m_cat')||'دیگر', amount, note:val('m_note')});
+  audit('کیش انٹری', val('m_cat')+' — '+fmtMoney(amount));
+  closeModal(); renderCashbook(); toast('محفوظ ہو گیا','ok');
+}
+
+/* =========================================================================
+   DAILY CLOSING
+   ========================================================================= */
+function dayStats(dateStr){
+  const sales = db.sales.filter(s=>s.date===dateStr);
+  const purchases = db.purchases.filter(p=>p.date===dateStr);
+  const cashIn = db.cashEntries.filter(e=>e.date===dateStr && e.type==='in').reduce((s,e)=>s+e.amount,0);
+  const cashOut = db.cashEntries.filter(e=>e.date===dateStr && e.type==='out').reduce((s,e)=>s+e.amount,0);
+  const totalSales = sales.reduce((s,x)=>s+x.amount,0);
+  const totalPurchase = purchases.reduce((s,x)=>s+x.amount,0);
+  const totalCommission = purchases.reduce((s,x)=>s+x.commissionAmount,0);
+  const cogs = sales.reduce((s,x)=>{ const p=db.products.find(pp=>pp.id===x.productId); return s + (p?p.purchasePrice*x.qty:0); },0);
+  const netProfit = (totalSales - cogs) + totalCommission - cashOut;
+  return { totalSales, totalPurchase, totalCommission, cashIn, cashOut, netProfit };
+}
+function renderClosingPreview(){
+  if(!document.getElementById('closingDate').value) document.getElementById('closingDate').value = todayStr();
+  const date = val('closingDate');
+  const s = dayStats(date);
+  document.getElementById('closingPreview').innerHTML = `
+    <div style="font-size:14px;line-height:2.1;margin-top:10px;">
+      <div>کل فروخت: <b>${fmtMoney(s.totalSales)}</b></div>
+      <div>کل خریداری: <b>${fmtMoney(s.totalPurchase)}</b></div>
+      <div>کل کمیشن آمدنی: <b>${fmtMoney(s.totalCommission)}</b></div>
+      <div>نقد وصولی: <b>${fmtMoney(s.cashIn)}</b></div>
+      <div>نقد ادائیگی: <b>${fmtMoney(s.cashOut)}</b></div>
+      <div>تخمینی نفع: <b style="color:${s.netProfit>=0?'var(--primary)':'var(--danger)'}">${fmtMoney(s.netProfit)}</b></div>
+    </div>`;
+  renderClosingTable();
+}
+function closeDay(){
+  const date = val('closingDate');
+  if(db.closings.find(c=>c.date===date)){ toast('یہ دن پہلے ہی بند ہو چکا ہے','err'); return; }
+  const s = dayStats(date);
+  db.closings.push({ date, ...s, closedBy:currentUser()?.name, closedAt:new Date().toLocaleString('ur-PK') });
+  audit('یومیہ اختتام', date+' بند کر دیا گیا');
+  renderClosingTable();
+  toast('دن کامیابی سے بند ہو گیا','ok');
+}
+function renderClosingTable(){
+  const t = document.getElementById('closingTable');
+  t.innerHTML = `<tr><th>تاریخ</th><th>فروخت</th><th>خریداری</th><th>کمیشن</th><th>نفع</th><th>بند کیا</th></tr>` +
+    db.closings.slice().reverse().map(c=>`<tr><td>${c.date}</td><td>${fmtMoney(c.totalSales)}</td><td>${fmtMoney(c.totalPurchase)}</td>
+      <td>${fmtMoney(c.totalCommission)}</td><td>${fmtMoney(c.netProfit)}</td><td>${c.closedBy}</td></tr>`).join('') ||
+      `<tr><td colspan="6" class="text-dim" style="text-align:center;padding:20px;">ابھی کوئی دن بند نہیں ہوا</td></tr>`;
+}
+
+/* =========================================================================
+   DASHBOARD
+   ========================================================================= */
+function renderDashboard(){
+  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('ur-PK-u-nu-latn',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const today = todayStr();
+  const s = dayStats(today);
+  const totalReceivable = db.customers.reduce((sum,c)=>sum+c.balance,0);
+  const totalPayable = db.farmers.reduce((sum,f)=>sum+f.balance,0);
+  const lowStock = db.products.filter(p=>p.stock<=p.alertQty).length;
+
+  document.getElementById('dashCards').innerHTML = `
+    <div class="card stat-card"><div class="label">آج کی فروخت</div><div class="value pos">${fmtMoney(s.totalSales)}</div></div>
+    <div class="card stat-card"><div class="label">آج کی خریداری</div><div class="value">${fmtMoney(s.totalPurchase)}</div></div>
+    <div class="card stat-card"><div class="label">آج کا تخمینی نفع</div><div class="value ${s.netProfit>=0?'pos':'neg'}">${fmtMoney(s.netProfit)}</div></div>
+    <div class="card stat-card"><div class="label">موجودہ نقد بیلنس</div><div class="value info">${fmtMoney(cashBalance())}</div></div>
+    <div class="card stat-card"><div class="label">وصولی باقی (گاہک)</div><div class="value neg">${fmtMoney(totalReceivable)}</div></div>
+    <div class="card stat-card"><div class="label">ادائیگی باقی (کاشتکار)</div><div class="value neg">${fmtMoney(totalPayable)}</div></div>
+    <div class="card stat-card"><div class="label">کل گاہک</div><div class="value">${db.customers.length}</div></div>
+    <div class="card stat-card"><div class="label">کم اسٹاک الرٹس</div><div class="value ${lowStock?'neg':'pos'}">${lowStock}</div></div>
+  `;
+
+  const days = [...Array(7)].map((_,i)=>{
+    const d = new Date(); d.setDate(d.getDate()-(6-i)); return d.toISOString().slice(0,10);
+  });
+  const maxVal = Math.max(1, ...days.map(d=>{ const st=dayStats(d); return Math.max(st.totalSales, st.totalPurchase); }));
+  document.getElementById('chart7day').innerHTML = days.map(d=>{
+    const st = dayStats(d);
+    const sH = Math.round(st.totalSales/maxVal*130)+2, pH = Math.round(st.totalPurchase/maxVal*130)+2;
+    return `<div class="chart-col">
+      <div style="display:flex;gap:3px;align-items:flex-end;height:130px;">
+        <div class="bar" style="height:${sH}px"></div><div class="bar purchase" style="height:${pH}px"></div>
+      </div>
+      <div class="lbl">${d.slice(5)}</div></div>`;
+  }).join('');
+
+  const acts = [...db.purchases.slice(-3).map(p=>({t:p.date,txt:`خریداری: ${db.products.find(x=>x.id===p.productId)?.name} — ${fmtMoney(p.amount)}`})),
+                ...db.sales.slice(-3).map(s=>({t:s.date,txt:`فروخت: ${db.products.find(x=>x.id===s.productId)?.name} — ${fmtMoney(s.amount)}`}))];
+  document.getElementById('recentActivity').innerHTML = acts.length? acts.map(a=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);">${a.txt} <span class="text-dim">(${a.t})</span></div>`).join('') : '<div class="text-dim">ابھی کوئی سرگرمی نہیں</div>';
+}
+
+/* auto refresh (dashboard + reports) */
+let refreshTimer = null;
+function startAutoRefresh(){
+  if(refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(()=>{
+    const active = document.querySelector('.section.active')?.id;
+    if(active==='sec-dashboard') renderDashboard();
+    if(active==='sec-reports') renderReport();
+  }, 15000);
+}
+
+/* =========================================================================
+   REPORTS
+   ========================================================================= */
+function inRange(dateStr, from, to){
+  if(from && dateStr<from) return false;
+  if(to && dateStr>to) return false;
+  return true;
+}
+function renderReport(){
+  const type = val('reportType'), from = val('repFrom'), to = val('repTo');
+  const table = document.getElementById('reportTable'), summary = document.getElementById('reportSummary');
+  if(type==='sales'){
+    const rows = db.sales.filter(s=>inRange(s.date,from,to));
+    const total = rows.reduce((s,x)=>s+x.amount,0);
+    summary.innerHTML = statCard('کل فروخت', fmtMoney(total)) + statCard('کل انوائسز', rows.length) + statCard('نقد', fmtMoney(rows.filter(r=>r.paymentType==='cash').reduce((s,x)=>s+x.amount,0))) + statCard('ادھار', fmtMoney(rows.filter(r=>r.paymentType==='credit').reduce((s,x)=>s+x.amount,0)));
+    table.innerHTML = `<tr><th>تاریخ</th><th>گاہک</th><th>جنس</th><th>مقدار</th><th>رقم</th></tr>` +
+      rows.map(s=>`<tr><td>${s.date}</td><td>${db.customers.find(c=>c.id===s.customerId)?.name||'نقد گاہک'}</td><td>${db.products.find(p=>p.id===s.productId)?.name}</td><td>${s.qty}</td><td>${fmtMoney(s.amount)}</td></tr>`).join('') || emptyRow(5);
+  } else if(type==='purchase'){
+    const rows = db.purchases.filter(p=>inRange(p.date,from,to));
+    const total = rows.reduce((s,x)=>s+x.amount,0), comm = rows.reduce((s,x)=>s+x.commissionAmount,0);
+    summary.innerHTML = statCard('کل خریداری', fmtMoney(total)) + statCard('کل کمیشن', fmtMoney(comm)) + statCard('کل انوائسز', rows.length) + statCard('اوسط ریٹ', rows.length? fmtMoney(total/rows.reduce((s,x)=>s+x.qty,1)) : '—');
+    table.innerHTML = `<tr><th>تاریخ</th><th>کاشتکار</th><th>جنس</th><th>وزن</th><th>رقم</th><th>کمیشن</th></tr>` +
+      rows.map(p=>`<tr><td>${p.date}</td><td>${db.farmers.find(f=>f.id===p.farmerId)?.name}</td><td>${db.products.find(x=>x.id===p.productId)?.name}</td><td>${p.qty}</td><td>${fmtMoney(p.amount)}</td><td>${fmtMoney(p.commissionAmount)}</td></tr>`).join('') || emptyRow(6);
+  } else if(type==='profit'){
+    const dates = [...new Set([...db.sales.map(s=>s.date), ...db.purchases.map(p=>p.date)])].filter(d=>inRange(d,from,to)).sort();
+    let totalProfit=0;
+    const rowsHtml = dates.map(d=>{ const s=dayStats(d); totalProfit+=s.netProfit; return `<tr><td>${d}</td><td>${fmtMoney(s.totalSales)}</td><td>${fmtMoney(s.totalPurchase)}</td><td>${fmtMoney(s.totalCommission)}</td><td style="color:${s.netProfit>=0?'var(--primary)':'var(--danger)'}">${fmtMoney(s.netProfit)}</td></tr>`; }).join('');
+    summary.innerHTML = statCard('مجموعی نفع/نقصان', fmtMoney(totalProfit)) + statCard('دنوں کی تعداد', dates.length);
+    table.innerHTML = `<tr><th>تاریخ</th><th>فروخت</th><th>خریداری</th><th>کمیشن</th><th>نفع</th></tr>` + (rowsHtml||emptyRow(5));
+  } else if(type==='ledger'){
+    summary.innerHTML = statCard('کل گاہک بقایا', fmtMoney(db.customers.reduce((s,c)=>s+c.balance,0))) + statCard('کل کاشتکار بقایا', fmtMoney(db.farmers.reduce((s,f)=>s+f.balance,0)));
+    table.innerHTML = `<tr><th>قسم</th><th>نام</th><th>موبائل</th><th>بقایا رقم</th></tr>` +
+      db.customers.map(c=>`<tr><td>گاہک</td><td>${c.name}</td><td>${c.mobile||'—'}</td><td>${fmtMoney(c.balance)}</td></tr>`).join('') +
+      db.farmers.map(f=>`<tr><td>کاشتکار</td><td>${f.name}</td><td>${f.mobile||'—'}</td><td>${fmtMoney(f.balance)}</td></tr>`).join('');
+  }
+}
+function statCard(label,value){ return `<div class="card stat-card"><div class="label">${label}</div><div class="value">${value}</div></div>`; }
+function emptyRow(n){ return `<tr><td colspan="${n}" class="text-dim" style="text-align:center;padding:20px;">کوئی ڈیٹا نہیں</td></tr>`; }
+function printReport(){ window.print(); }
+function exportReportCsv(){
+  const table = document.getElementById('reportTable');
+  let csv = [...table.querySelectorAll('tr')].map(tr=>[...tr.children].map(td=>`"${td.textContent.replace(/"/g,'""')}"`).join(',')).join('\n');
+  downloadFile('report_'+todayStr()+'.csv', csv, 'text/csv');
+}
+function downloadFile(name, content, type){
+  const blob = new Blob([content],{type});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* =========================================================================
+   USERS / SECURITY
+   ========================================================================= */
+function renderUsers(){
+  const t = document.getElementById('userTable');
+  t.innerHTML = `<tr><th>نام</th><th>یوزر نیم</th><th>رول</th><th>حالت</th><th></th></tr>` +
+    db.users.map(u=>`<tr><td>${u.name}</td><td>${u.username}</td><td>${roleLabel(u.role)}</td>
+      <td>${u.active?'<span class="tag green">فعال</span>':'<span class="tag red">غیر فعال</span>'}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="toggleUserActive(${u.id})">${u.active?'غیر فعال کریں':'فعال کریں'}</button></td></tr>`).join('');
+  const at = document.getElementById('auditTable');
+  const rows = db.auditLog.slice(0,60).map(a=>`<tr><td>${a.at}</td><td>${a.user}</td><td>${a.action}</td><td>${a.detail||''}</td></tr>`).join('');
+  at.innerHTML = `<tr><th>وقت</th><th>صارف</th><th>عمل</th><th>تفصیل</th></tr>` + (rows||emptyRow(4));
+}
+function toggleUserActive(id){
+  const u = db.users.find(x=>x.id===id);
+  if(u.username==='admin'){ toast('مرکزی ایڈمن کو غیر فعال نہیں کیا جا سکتا','err'); return; }
+  u.active = !u.active; renderUsers(); toast('حالت تبدیل ہو گئی','ok');
+}
+function openUserModal(){
+  openModal(`<h3>نیا صارف</h3>
+    <div class="form-grid">
+      <div class="field"><label>پورا نام</label><input id="m_name"></div>
+      <div class="field"><label>یوزر نیم</label><input id="m_uname"></div>
+      <div class="field"><label>پاس ورڈ</label><input type="password" id="m_pass"></div>
+      <div class="field"><label>رول</label><select id="m_role"><option value="manager">منیجر</option><option value="cashier">کیشیئر</option><option value="admin">منتظم</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveUser()">محفوظ کریں</button>
+      <button class="btn btn-outline" onclick="closeModal()">منسوخ</button>
+    </div>`);
+}
+async function saveUser(){
+  const uname = val('m_uname').trim();
+  if(!uname || !val('m_pass')){ toast('یوزر نیم اور پاس ورڈ درکار ہیں','err'); return; }
+  if(db.users.find(u=>u.username===uname)){ toast('یہ یوزر نیم پہلے سے موجود ہے','err'); return; }
+  const salt = randomSalt();
+  const passwordHash = await hashPassword(val('m_pass'), salt);
+  db.users.push({ id:uid('user'), username:uname, name:val('m_name')||uname, role:val('m_role'), active:true, salt, passwordHash });
+  audit('نیا صارف بنایا', uname);
+  closeModal(); renderUsers(); toast('صارف بن گیا','ok');
+}
+async function changePassword(){
+  const cur = val('curPass'), nw = val('newPass');
+  const u = currentUser();
+  const hash = await hashPassword(cur, u.salt);
+  if(hash !== u.passwordHash){ toast('موجودہ پاس ورڈ غلط ہے','err'); return; }
+  if(!nw || nw.length<4){ toast('نیا پاس ورڈ کم از کم 4 حروف کا ہو','err'); return; }
+  u.salt = randomSalt();
+  u.passwordHash = await hashPassword(nw, u.salt);
+  audit('پاس ورڈ تبدیل', u.username);
+  document.getElementById('curPass').value=''; document.getElementById('newPass').value='';
+  toast('پاس ورڈ اپڈیٹ ہو گیا','ok');
+}
+
+/* =========================================================================
+   BACKUP / RESTORE
+   ========================================================================= */
+function backupData(){
+  downloadFile('mandi_backup_'+todayStr()+'.json', JSON.stringify(db,null,2), 'application/json');
+  audit('بیک اپ لیا گیا','');
+  toast('بیک اپ ڈاؤن لوڈ ہو گیا','ok');
+}
+function restoreData(evt){
+  const file = evt.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed.users || !parsed.products){ throw new Error('invalid'); }
+      db = parsed;
+      audit('بیک اپ بحال کیا گیا', file.name);
+      toast('ڈیٹا کامیابی سے بحال ہو گیا','ok');
+      buildSidebar(); renderTopbar(); showSection('dashboard');
+    }catch(err){ toast('فائل درست نہیں ہے','err'); }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+(async function init(){
+  await initDefaultAdmin();
+  document.getElementById('repFrom').value = todayStr();
+  document.getElementById('repTo').value = todayStr();
+})();
+</script>
+</body>
+</html>
